@@ -1,0 +1,44 @@
+RPMBUILD_DIR := $(shell pwd)/rpmbuild
+RPMBUILD_BUILD_DIR     := $(RPMBUILD_DIR)/BUILD
+RPMBUILD_BUILDROOT_DIR := $(RPMBUILD_DIR)/BUILDROOT
+RPMBUILD_RPMS_DIR      := $(RPMBUILD_DIR)/RPMS
+RPMBUILD_SOURCES_DIR   := $(RPMBUILD_DIR)/SOURCES
+RPMBUILD_SPECS_DIR     := $(RPMBUILD_DIR)/SPECS
+RPMBUILD_SRPMS_DIR     := $(RPMBUILD_DIR)/SRPMS
+
+PACKAGE_NAME := self-built-boost
+SPEC_FILE := $(PACKAGE_NAME).spec
+PACKAGE_VERSION := $(shell grep Version $(SPEC_FILE) | awk '{print $$2}')
+
+SOURCE_TAR := boost_$(shell echo ${PACKAGE_VERSION} | sed s/\\./_/g).tar.gz
+
+.PHONY: all
+all: setuptree $(RPMBUILD_SOURCES_DIR)/$(SOURCE_TAR) $(RPMBUILD_SPECS_DIR)/$(SPEC_FILE) package
+
+.PHONY: setuptree
+setuptree:
+	mkdir -p \
+	$(RPMBUILD_DIR) \
+	$(RPMBUILD_BUILD_DIR) \
+	$(RPMBUILD_BUILDROOT_DIR) \
+	$(RPMBUILD_RPMS_DIR) \
+	$(RPMBUILD_SOURCES_DIR) \
+	$(RPMBUILD_SPECS_DIR) \
+	$(RPMBUILD_SRPMS_DIR)
+
+$(SOURCE_TAR):
+	curl -L -O https://boostorg.jfrog.io/artifactory/main/release/${PACKAGE_VERSION}/source/${SOURCE_TAR}
+
+$(RPMBUILD_SOURCES_DIR)/$(SOURCE_TAR): $(SOURCE_TAR)
+	mv $(SOURCE_TAR) $(RPMBUILD_SOURCES_DIR)
+
+$(RPMBUILD_SPECS_DIR)/$(SPEC_FILE): $(SPEC_FILE)
+	cp $(SPEC_FILE) $(RPMBUILD_SPECS_DIR)/
+
+.PHONY: package
+package:
+	rpmbuild --define "_topdir $(RPMBUILD_DIR)" -ba $(RPMBUILD_SPECS_DIR)/$(SPEC_FILE)
+
+.PHONY: clean
+clean:
+	rm -rf $(RPMBUILD_DIR)
