@@ -30,7 +30,7 @@ $(SOURCE_TAR):
 	curl -L -O https://boostorg.jfrog.io/artifactory/main/release/${PACKAGE_VERSION}/source/${SOURCE_TAR}
 
 $(RPMBUILD_SOURCES_DIR)/$(SOURCE_TAR): $(SOURCE_TAR)
-	mv $(SOURCE_TAR) $(RPMBUILD_SOURCES_DIR)
+	cp $(SOURCE_TAR) $(RPMBUILD_SOURCES_DIR)
 
 $(RPMBUILD_SPECS_DIR)/$(SPEC_FILE): $(SPEC_FILE)
 	cp $(SPEC_FILE) $(RPMBUILD_SPECS_DIR)/
@@ -41,4 +41,5 @@ package:
 
 .PHONY: clean
 clean:
+	rm -rf $(SOURCE_TAR)
 	rm -rf $(RPMBUILD_DIR)

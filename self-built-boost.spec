@@ -8,6 +8,9 @@ Source0: boost_1_76_0.tar.gz
 
 BuildRequires:  python-devel
 
+# Avoid "No build ID note found" error
+%undefine _missing_build_ids_terminate_build
+
 %description
 Boost provides free peer-reviewed portable C++ source libraries.  The
 emphasis is on libraries which work well with the C++ Standard
